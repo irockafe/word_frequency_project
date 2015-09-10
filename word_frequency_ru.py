@@ -33,7 +33,7 @@ def upload_file():
    		#send_file(temp_path, as_attachment=True)
    return '''
    <!doctype html>
-   <title>Upload New File</title>
+   <title>Create Russian Word Frequency-Lists</title>
    <h1>Create Word Frequency Lists for Russian Texts</h1>
    <h3>Focus your Russian studies on the most common words.</h3>
         <p>Simply upload a text file containing your reading and 
