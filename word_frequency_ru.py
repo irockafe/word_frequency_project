@@ -34,7 +34,7 @@ def upload_file():
    return '''
    <!doctype html>
    <title>Create Russian Word-Frequency Lists</title>
-   <h1>Create Word Frequency Lists for Russian Texts</h1>
+   <h1>Create Word-Frequency Lists for Russian Texts</h1>
    <h3>Focus your Russian studies on the most common words.</h3>
         <p>Simply upload a text file containing your reading and 
         download the resulting word-frequency list.</p>
