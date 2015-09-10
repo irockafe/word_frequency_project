@@ -1,12 +1,12 @@
 from flask import (Flask, request, url_for,
 					redirect, send_from_directory,
-					after_this_request, g)
+					after_this_request, send_file)
 from werkzeug import secure_filename
 import os
 import operator
 from scripts.make_freq_dict_from_txt_with_pymorphy2 import (sanitize_text,
 make_freq_dict, lemmatize, split_chapters)
-from glob import glob
+import tempfile
 
 UPLOAD_FOLDER = os.getcwd() + '/uploads/'
 KNOWN_WORDS_FOLDER = os.getcwd() + '/known_words/'
@@ -36,12 +36,14 @@ def upload_file():
 		file = request.files['file']
 		if file and allowed_file(file.filename):
 			filename = secure_filename(file.filename)
-			processed_filename = filename.replace('.txt','')+'_processed.txt'
+			processed_filename = filename.replace('.txt','')+'_word_frequency.txt'
 			freq_dict = process_file(file)
-			write_freq_dict_to_file(freq_dict, processed_filename)
-			#return output_file
-			return redirect(url_for('processed_file',
-								filename=processed_filename))
+			temp_output = write_freq_dict_to_file(freq_dict, processed_filename)
+			#return temp_output.read()
+			#return redirect(url_for('processed_file',
+			#					filename=processed_filename))
+			return send_file(temp_output.name, as_attachment=True, attachment_filename=processed_filename), temp_output.close()
+			#send_file(temp_path, as_attachment=True)
 	return '''
 	<!doctype html>
 	<title>Upload New File</title>
@@ -57,6 +59,7 @@ def allowed_file(filename):
 	return '.' in filename and \
 		filename.rsplit('.', 1)[1] in ALLOWED_EXTENTSIONS
 
+'''
 @app.route('/uploads/<filename>')
 def processed_file(filename):
 	#Remove the file after it has been given to user
@@ -66,6 +69,7 @@ def processed_file(filename):
 	@after_this_request
 	def remove_file(response):
 		os.remove(UPLOAD_FOLDER + filename)
+'''
 
 def process_file(file):
 	unprocessed_text = file.read()
@@ -76,9 +80,12 @@ def process_file(file):
 	return sorted_word_freq_dict
 
 def write_freq_dict_to_file(freq_dict, filename):
-	with open(UPLOAD_FOLDER+filename, 'w') as f:
-		for word in freq_dict:
-			f.write('%s\t%s\n' % (word[0].encode('utf-8'), word[1]))
+	temp = tempfile.NamedTemporaryFile()
+	for word in freq_dict:
+		temp.write('%s\t%s\n' % (word[0].encode('utf-8'), word[1]))
+	temp.seek(0)
+	#send_file(temp, as_attachment=True, attachment_filename = filename)
+	return temp
 
 if __name__ == '__main__':
 	app.run(debug=True)
