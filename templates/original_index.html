@@ -1,0 +1,22 @@
+<!doctype html>
+   <title>Create Russian Word-Frequency Lists</title>
+   <h1>Create Word-Frequency Lists for Russian Texts</h1>
+   <h3>Focus your Russian studies on the most common words.</h3>
+            <p>Simply upload a text file containing your reading and 
+            download the resulting word-frequency list.</p>
+            <p>Thanks to <a href="https://pymorphy2.readthedocs.org/en/latest/">
+            pymorphy2,</a> almost all words should be lemmatized, so говорит, говорят,
+            говорил, говорящий, итд. should all be counted as forms of
+            говорить.</p>
+   <form action="" method=post enctype=multipart/form-data>
+         <p><input type=file name=file>
+             <input type=submit value=Upload>
+   </form>
+         <body>At the moment this only accepts plain-text files (.txt).<br>
+          Harry Potter and the Prisoner of Azkaban (around 300 pages)
+          takes around 1 minute, so please be patient. <br>
+          Hopefully new languages, file formats, and features -
+          not to mention an actual effort at design -
+          will come in the future.<br>
+          Best,<br>
+          Isaac</body>
