@@ -1,2 +1,2 @@
 web: gunicorn word_frequency_ru:app --log-file=- 
-worker: python worker.py
+worker: celery worker --app=tasks.app
