@@ -38,18 +38,25 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #app.config['SERVER_NAME'] = '127.0.0.1:5000'
 
 
+
+'''
 app.config.update(
    CELERY_BROKER_URL='redis://localhost:6379/0',
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
+'''
+
 
 #redis_loc = redis.from_url(os.environ.get("REDIS_URL"))
-'''
+
+
+
 app.config.update(
    CELERY_BROKER_URL=os.environ.get('REDIS_URL'),
    CELERY_RESULT_BACKEND=os.environ.get('REDIS_URL'))
-'''
-celery = make_celery(app)
 
+
+
+celery = make_celery(app)
 
 
 @app.route('/', methods=['GET', 'POST'])
