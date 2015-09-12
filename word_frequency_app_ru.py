@@ -37,18 +37,17 @@ app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #app.config['SERVER_NAME'] = '127.0.0.1:5000'
 
-'''
+
 app.config.update(
    CELERY_BROKER_URL='redis://localhost:6379/0',
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
-'''
 
 #redis_loc = redis.from_url(os.environ.get("REDIS_URL"))
-
+'''
 app.config.update(
    CELERY_BROKER_URL=os.environ.get('REDIS_URL'),
    CELERY_RESULT_BACKEND=os.environ.get('REDIS_URL'))
-
+'''
 celery = make_celery(app)
 
 
@@ -125,6 +124,8 @@ def temp_file_send(filename):
 def taskstatus(task_id, filename):
    print 'GOT TO TASK STATUS'
    task = make_freq_dict.AsyncResult(task_id)
+   print 'Task State:', task.state
+
    if task.state == 'PENDING':
       response = {
          'state': task.state,
@@ -132,9 +133,10 @@ def taskstatus(task_id, filename):
          'total': 1,
          'status': 'Pending...'
       }
+      time.sleep(2)
       return redirect(url_for('taskstatus', 
-                     task_id=task_id, 
-                     filename=filename,))
+                           task_id=task_id, 
+                           filename=filename,))
 
 
    if task.state == 'SUCCESS':
