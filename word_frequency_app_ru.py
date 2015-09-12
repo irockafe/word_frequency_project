@@ -34,7 +34,9 @@ ALLOWED_EXTENTSIONS = set(['txt', 'pdf', 'png', 'jpg'])
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SERVER_NAME'] = '127.0.0.1:5000'
+#app.config['SERVER_NAME'] = '127.0.0.1:5000'
+
+
 app.config.update(
    CELERY_BROKER_URL='redis://localhost:6379/0',
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
