@@ -12,7 +12,7 @@ import tempfile
 from celery import Celery
 from collections import defaultdict
 import time
-
+import redis
 
 def make_celery(app):
       celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
@@ -43,10 +43,11 @@ app.config.update(
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
 '''
 
+#redis_loc = redis.from_url(os.environ.get("REDIS_URL"))
 
 app.config.update(
-   CELERY_BROKER_URL=os.environ['REDIS_URL'],
-   CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
+   CELERY_BROKER_URL=os.environ.get('REDIS_URL'),
+   CELERY_RESULT_BACKEND=os.environ.get('REDIS_URL'))
 
 celery = make_celery(app)
 
