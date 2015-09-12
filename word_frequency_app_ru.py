@@ -45,8 +45,8 @@ app.config.update(
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
 '''
 
-#r = redis.from_url(os.environ.get("REDIS_URL"))
-
+r = redis.from_url(os.environ.get("REDIS_URL"))
+print r
 
 app.config.update(
    CELERY_BROKER_URL=os.environ.get("REDIS_URL"),
