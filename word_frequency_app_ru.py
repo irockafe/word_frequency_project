@@ -46,8 +46,8 @@ app.config.update(
 '''
 
 app.config.update(
-   CELERY_BROKER_URL=os.environ["REDIS_URL"],
-   CELERY_RESULT_BACKEND=os.environ.get["REDIS_URL"]
+   CELERY_BROKER_URL=os.environ.get("REDIS_URL"),
+   CELERY_RESULT_BACKEND=os.environ.get("REDIS_URL")
    )
 
 
