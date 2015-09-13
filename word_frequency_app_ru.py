@@ -44,24 +44,26 @@ app.config.update(
    CELERY_BROKER_URL='redis://localhost:6379/0',
    CELERY_RESULT_BACKEND='redis://localhost:6379/0')
 '''
-'''
-app.config.update(
-   CELERY_BROKER_URL=os.environ.get("REDIS_URL"),
-   CELERY_RESULT_BACKEND=os.environ.get("REDIS_URL")
-   )
-'''
 
-r = redis.from_url(os.environ.get("REDIS_URL"))
-print r
+app.config.update(
+   CELERY_BROKER_URL=os.environ["REDIS_URL"],
+   CELERY_RESULT_BACKEND=os.environ.get["REDIS_URL"]
+   )
+
+
+'''
+#r = redis.from_url(os.environ.get("REDIS_URL"))
 
 app.config.update(
    CELERY_BROKER_URL=os.environ.get(r),
    CELERY_RESULT_BACKEND=os.environ.get(r)
    )
-
+'''
 
 
 celery = make_celery(app)
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
