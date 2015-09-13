@@ -60,3 +60,4 @@ target/
 #Misc
 venv
 *.pyc
+.env
