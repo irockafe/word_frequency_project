@@ -14,59 +14,53 @@ from collections import defaultdict
 import time
 import redis
 
-def make_celery(app):
-      celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
-      celery.conf.update(app.config)
-      TaskBase = celery.Task
-      class ContextTask(TaskBase):
-            abstract = True
-            def __call__(self, *args, **kwargs):
-                  with app.app_context():
-                        return TaskBase.__call__(self, *args, **kwargs)
-      celery.Task = ContextTask
-      return celery
+#Remember to set and Environmental Variable for REDIS_URL!
 
+def make_celery(app):
+   '''From flask's celery page at
+   http://flask.pocoo.org/docs/0.10/patterns/celery/
+   The function creates a new Celery object, 
+   configures it with the broker from the application 
+   config, updates the rest of the Celery config from 
+   the Flask config and then creates a subclass of the 
+   task that wraps the task execution in an application 
+   context.
+
+   '''
+   celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+   celery.conf.update(app.config)
+   TaskBase = celery.Task
+   class ContextTask(TaskBase):
+         abstract = True
+         def __call__(self, *args, **kwargs):
+               with app.app_context():
+                     return TaskBase.__call__(self, *args, **kwargs)
+   celery.Task = ContextTask
+   return celery
 
 UPLOAD_FOLDER = os.getcwd() + '/uploads/'
 KNOWN_WORDS_FOLDER = os.getcwd() + '/known_words/'
 ALLOWED_EXTENTSIONS = set(['txt'])
-
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #app.config['SERVER_NAME'] = '127.0.0.1:5000'
 
-
-
-'''
 app.config.update(
-   CELERY_BROKER_URL='redis://localhost:6379/0',
-   CELERY_RESULT_BACKEND='redis://localhost:6379/0')
-'''
-
-app.config.update(
-   CELERY_BROKER_URL=os.environ.get("REDIS_URL"),
-   CELERY_RESULT_BACKEND=os.environ.get("REDIS_URL")
+   CELERY_BROKER_URL=os.environ["REDIS_URL"],
+   CELERY_RESULT_BACKEND=os.environ["REDIS_URL"]
    )
-
-
-'''
-#r = redis.from_url(os.environ.get("REDIS_URL"))
-
-app.config.update(
-   CELERY_BROKER_URL=os.environ.get(r),
-   CELERY_RESULT_BACKEND=os.environ.get(r)
-   )
-'''
-
 
 celery = make_celery(app)
 
-
-
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+   '''A page where people can upload their files
+   and which begins a background processing task
+   (via taskstatus) when they click the upload button.
+   
+   '''
    if request.method == 'GET':
       return render_template('index.html')
    if request.method == 'POST':
@@ -80,6 +74,13 @@ def upload_file():
 
 @app.route('/longtask', methods=['POST'])
 def longtask(file, filename):
+   '''
+   This begins the background task (make_freq_dict).
+   It pre-processes the uploaded file as well. Then 
+   it redirects user to the /taskstatus page, which
+   updates them on progress and serves the 
+   output file.
+   '''
    if request.method == 'GET':
       return render_template('index.html')
    print 'BEGAN LONG TASK'
@@ -103,6 +104,9 @@ def longtask(file, filename):
 def make_freq_dict(self, sanitized_txt, processed_filename):
    '''Input: text input that has had punctuation and whitespace characters removed.
    Output: an unsorted dictionary of word frequency
+   Uses self variable (enabled by celery.tast(bind=True)) to
+   return information about the task's process. In this case, 
+   the percent of words that have been processed.
    ''' 
    print sanitized_txt[0:100]
 
@@ -129,12 +133,14 @@ def make_freq_dict(self, sanitized_txt, processed_filename):
 #WORKING ON MAKING PYTHON/CELERY TALK WITH 
 #the task at hand and a progress bar
 
-@app.route('/tmp/<filename>')
-def temp_file_send(filename):
-   return send_from_directory()
-
 @app.route('/status/<task_id>/<filename>')
 def taskstatus(task_id, filename):
+   '''
+   Checks the status of the background task.
+   Auto-refreshes a page that updates the user
+   on the task's progress.
+   Sends the user the file if 
+   '''
    print 'GOT TO TASK STATUS'
    task = make_freq_dict.AsyncResult(task_id)
    print 'Task State:', task.state
@@ -146,13 +152,13 @@ def taskstatus(task_id, filename):
          'total': 1,
          'status': 'Pending...'
       }
-      time.sleep(2)
-      return redirect(url_for('taskstatus', 
-                           task_id=task_id, 
-                           filename=filename,))
+      #time.sleep Prevents a redirect loop???
+      #time.sleep(2)
+      return render_template('auto_refresh.html', percent_complete= "Pending")
 
 
    if task.state == 'SUCCESS':
+      #get the background task
       unsorted_freq_dict = task.wait()
       sorted_word_freq_dict = sorted(unsorted_freq_dict.items(), key=operator.itemgetter(1), reverse=True)
       output = write_freq_dict_to_file(sorted_word_freq_dict, filename)
@@ -198,9 +204,6 @@ def write_freq_dict_to_file(freq_dict, filename):
    
    return f
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-   return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 def allowed_file(filename):
    #Checks if this is an allowed filename
