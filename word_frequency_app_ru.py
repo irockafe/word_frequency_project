@@ -13,6 +13,7 @@ from celery import Celery
 from collections import defaultdict
 import time
 import redis
+from rq import Connection
 
 #Remember to set and Environmental Variable for REDIS_URL!
 
@@ -45,12 +46,13 @@ ALLOWED_EXTENTSIONS = set(['txt'])
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-#app.config['SERVER_NAME'] = '127.0.0.1:5000'
 
 app.config.update(
    CELERY_BROKER_URL=os.environ["REDIS_URL"],
    CELERY_RESULT_BACKEND=os.environ["REDIS_URL"]
    )
+redis_connection= redis.from_url(os.environ["REDIS_URL"])
+#redis_connection = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 celery = make_celery(app)
 
@@ -211,6 +213,7 @@ def allowed_file(filename):
          filename.rsplit('.', 1)[1] in ALLOWED_EXTENTSIONS
 
 if __name__ == '__main__':
-   app.run(debug=True)
+   with Connection(redis_connection):
+      app.run(debug=True)
 
 
