@@ -92,10 +92,10 @@ def longtask(file, filename):
    #print unprocessed_text[0:100]
 
    sanitized_text = sanitize_text(unprocessed_text)
-   print '\nSANITIZED:\n\n', sanitized_text[0:100]
+   #print '\nSANITIZED:\n\n', sanitized_text[0:100]
    #Time consuming!
-   unsorted_word_freq_dict = make_freq_dict.delay(sanitized_text, processed_filename)
-   print type(unsorted_word_freq_dict)
+   #unsorted_word_freq_dict = make_freq_dict.delay(sanitized_text, processed_filename)
+   #print type(unsorted_word_freq_dict)
    
    return redirect(url_for('taskstatus',
                   task_id=unsorted_word_freq_dict.id, 
