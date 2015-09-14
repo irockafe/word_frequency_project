@@ -51,6 +51,7 @@ app.config.update(
    CELERY_BROKER_URL=os.environ["REDIS_URL"],
    CELERY_RESULT_BACKEND=os.environ["REDIS_URL"]
    )
+
 redis_connection= redis.from_url(os.environ["REDIS_URL"])
 #redis_connection = redis.StrictRedis(host='localhost', port=6379, db=0)
 
@@ -88,7 +89,7 @@ def longtask(file, filename):
    print 'BEGAN LONG TASK'
    processed_filename = filename.replace('.txt','')+'_word_frequency.txt'
    unprocessed_text = file.read()
-   print unprocessed_text[0:100]
+   #print unprocessed_text[0:100]
 
    sanitized_text = sanitize_text(unprocessed_text)
    print '\nSANITIZED:\n\n', sanitized_text[0:100]
