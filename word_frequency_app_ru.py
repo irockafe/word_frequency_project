@@ -94,7 +94,8 @@ def longtask(file, filename):
    sanitized_text = sanitize_text(unprocessed_text)
    #print '\nSANITIZED:\n\n', sanitized_text[0:100]
    #Time consuming!
-   #unsorted_word_freq_dict = make_freq_dict.delay(sanitized_text, processed_filename)
+   unsorted_word_freq_dict = make_freq_dict.delay(sanitized_text, processed_filename)
+   print "Began celery task"
    #print type(unsorted_word_freq_dict)
    
    return redirect(url_for('taskstatus',
