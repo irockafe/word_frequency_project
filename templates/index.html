@@ -15,10 +15,12 @@
     <hr>
     <h2>Upload a .txt file</h2>
      
-    <form name="Upload" action="" method=post enctype=multipart/form-data>
+    <form name="Upload Text" action="" method=post enctype=multipart/form-data>
       <p><input type=file name=file>
       <input type="submit" value="Upload" onclick="start_long_task()">
     </form>
+
+    
     <p>Currently, only plain-text (.txt) files are supported.</p>
       <p>
       While the program should be able to create frequency lists for any language where words are separated by spaces (sorry, Chinese!), it can only lemmatize words in Russian thanks to <a href="https://pymorphy2.readthedocs.org/en/latest/">pymorphy2</a>.  </p>
