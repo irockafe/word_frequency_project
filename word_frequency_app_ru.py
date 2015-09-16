@@ -74,6 +74,9 @@ def upload_file():
          return longtask(file, filename)
    return redirect(url_for('upload_file'))
    #return render_template('index.html')
+@app.route('/about', methods=['GET'])
+def about_page():
+   return render_template('about.html')
 
 @app.route('/longtask', methods=['POST'])
 def longtask(file, filename):
